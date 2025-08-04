@@ -41,7 +41,7 @@ function App() {
 
     fetchInitial();
     loadCategories();
-  }, []); // dependency array를 빈 배열로 변경
+  }, [incrementCounter]);
 
   const fetchNewMessage = async () => {
     setLoading(true);

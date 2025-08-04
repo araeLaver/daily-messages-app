@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export const useMessageCounter = () => {
   const [count, setCount] = useState(0);
@@ -9,14 +9,14 @@ export const useMessageCounter = () => {
   }, []);
 
   // 카운터 증가
-  const incrementCounter = () => {
+  const incrementCounter = useCallback(() => {
     setCount(prev => prev + 1);
-  };
+  }, []);
 
   // 카운터 리셋
-  const resetCounter = () => {
+  const resetCounter = useCallback(() => {
     setCount(0);
-  };
+  }, []);
 
   return {
     count,
