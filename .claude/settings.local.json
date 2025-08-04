@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm start)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(set PORT=3002)",
+      "Bash(npx kill-port:*)",
+      "Bash(dir)",
+      "Bash(dir:*)",
+      "Bash(sqlite3:*)",
+      "Bash(python:*)",
+      "Bash(rm:*)",
+      "Bash(copy messages.db messages_backup.db)",
+      "Bash(cp:*)",
+      "Bash(mkdir:*)",
+      "Bash(xcopy:*)",
+      "Bash(robocopy:*)",
+      "Bash(powershell:*)"
+    ],
+    "deny": []
+  }
+}
