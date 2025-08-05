@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { RefreshCw, Heart, Share, Volume2, Copy, Check } from 'lucide-react';
+import { getKoreanCategory } from '../utils/categoryTranslations';
 
 const MessageCard = ({ 
   message, 
   onNewMessage, 
   loading = false,
+  todayMode = false,
   onShare,
   onSpeak,
   onFavorite 
@@ -66,17 +68,29 @@ const MessageCard = ({
       </blockquote>
       
       {/* 저자 */}
-      <div className="text-center mb-6">
-        <cite className="text-white/80 text-lg font-medium not-italic">
-          - {message.author}
-        </cite>
-      </div>
+      {message.author && message.author.trim() && message.author !== '익명' && (
+        <div className="text-center mb-6">
+          <cite className="text-white/80 text-lg font-medium not-italic">
+            — {message.author}
+          </cite>
+        </div>
+      )}
 
-      {/* 카테고리 */}
-      <div className="text-center mb-8">
+      {/* 카테고리 및 기타 정보 */}
+      <div className="text-center mb-8 flex justify-center gap-2 flex-wrap">
         <span className="inline-block px-4 py-2 bg-white/20 rounded-full text-white/90 text-sm font-medium">
-          #{message.category}
+          #{getKoreanCategory(message.category)}
         </span>
+        {todayMode && (
+          <span className="inline-block px-3 py-2 bg-yellow-400/20 text-yellow-200 rounded-full text-xs font-medium">
+            Today's Pick ⭐
+          </span>
+        )}
+        {message.date && (
+          <span className="inline-block px-3 py-2 bg-blue-400/20 text-blue-200 rounded-full text-xs font-medium">
+            {new Date(message.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+          </span>
+        )}
       </div>
 
       {/* 액션 버튼들 */}

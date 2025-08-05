@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, X, Copy, Check } from 'lucide-react';
+import { getKoreanCategory } from '../utils/categoryTranslations';
 
 const FavoritesList = ({ isOpen, onClose }) => {
   const [favorites, setFavorites] = useState([]);
@@ -60,7 +61,7 @@ const FavoritesList = ({ isOpen, onClose }) => {
                 <div className="flex justify-between items-center">
                   <div className="text-white/60 text-sm">
                     <span className="bg-white/10 px-2 py-1 rounded-full text-xs mr-2">
-                      {message.category}
+                      {getKoreanCategory(message.category)}
                     </span>
                     {message.author && `- ${message.author}`}
                   </div>
