@@ -1,13 +1,56 @@
 import axios from 'axios';
+import { mockMessages, mockCategories } from '../data/mockMessages';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 5000, // 빠른 타임아웃으로 폴백 활성화
 });
 
 // API configuration
+
+// 랜덤 메시지 선택 함수
+const getRandomMockMessage = (filters = {}) => {
+  let availableMessages = [...mockMessages];
+  
+  // 카테고리 필터링
+  if (filters.category && filters.category !== 'all') {
+    availableMessages = availableMessages.filter(msg => msg.category === filters.category);
+  }
+  
+  // 제외할 ID 필터링
+  if (filters.excludeIds && filters.excludeIds.length > 0) {
+    availableMessages = availableMessages.filter(msg => !filters.excludeIds.includes(msg.id.toString()));
+  }
+  
+  // 랜덤 선택
+  if (availableMessages.length === 0) {
+    availableMessages = [...mockMessages]; // 필터링된 메시지가 없으면 전체에서 선택
+  }
+  
+  const randomIndex = Math.floor(Math.random() * availableMessages.length);
+  return {
+    ...availableMessages[randomIndex],
+    source: 'mock',
+    timestamp: Date.now()
+  };
+};
+
+// 날짜 기반 메시지 선택 (오늘의 메시지)
+const getTodayMockMessage = () => {
+  const today = new Date();
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+  const messageIndex = dayOfYear % mockMessages.length;
+  
+  return {
+    ...mockMessages[messageIndex],
+    source: 'mock',
+    isToday: true,
+    date: today.toISOString().split('T')[0],
+    timestamp: Date.now()
+  };
+};
 
 export const messageService = {
   // 랜덤 메시지 가져오기
@@ -26,16 +69,10 @@ export const messageService = {
       const response = await api.get(`/api/messages/random?${params}`);
       return response.data;
     } catch (error) {
-      console.error('메시지 조회 실패:', error);
+      console.log('API 서버 연결 실패, 로컬 데이터 사용:', error.message);
       
-      // 최종 폴백 메시지
-      return {
-        id: 'fallback',
-        text: '오늘도 새로운 기회가 당신을 기다리고 있습니다. 🌅',
-        author: 'Daily Messages',
-        category: '영감',
-        source: 'fallback'
-      };
+      // 로컬 랜덤 메시지 반환
+      return getRandomMockMessage(filters);
     }
   },
 
@@ -45,8 +82,8 @@ export const messageService = {
       const response = await api.get('/api/messages/today');
       return response.data;
     } catch (error) {
-      console.error('오늘의 메시지 조회 실패:', error);
-      return this.getRandomMessage();
+      console.log('API 서버 연결 실패, 로컬 오늘의 메시지 사용:', error.message);
+      return getTodayMockMessage();
     }
   },
 
@@ -56,8 +93,13 @@ export const messageService = {
       const response = await api.get('/api/stats');
       return response.data;
     } catch (error) {
-      console.error('통계 조회 실패:', error);
-      return { totalMessages: 0, categoriesCount: 0, recentMessages: 0 };
+      console.log('API 서버 연결 실패, 로컬 통계 사용:', error.message);
+      return { 
+        totalMessages: mockMessages.length, 
+        categoriesCount: mockCategories.length - 1, // '전체' 제외
+        recentMessages: mockMessages.length,
+        schema: 'mock_data'
+      };
     }
   },
 
@@ -67,13 +109,8 @@ export const messageService = {
       const response = await api.get('/api/categories');
       return response.data;
     } catch (error) {
-      console.error('카테고리 조회 실패:', error);
-      return [
-        { name: 'all', name_ko: '전체', message_count: null },
-        { name: '동기부여', name_ko: '동기부여', message_count: 10 },
-        { name: '성공', name_ko: '성공', message_count: 13 },
-        { name: '행복', name_ko: '행복', message_count: 11 }
-      ];
+      console.log('API 서버 연결 실패, 로컬 카테고리 사용:', error.message);
+      return mockCategories;
     }
   },
 
