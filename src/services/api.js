@@ -7,8 +7,7 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// 실제 API 사용
-const USE_MOCK_API = false;
+// API configuration
 
 export const messageService = {
   // 랜덤 메시지 가져오기

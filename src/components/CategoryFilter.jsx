@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Filter, ChevronDown, Tag } from 'lucide-react';
-import { getKoreanCategory } from '../utils/categoryTranslations';
 
 const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
   const [isOpen, setIsOpen] = useState(false);
