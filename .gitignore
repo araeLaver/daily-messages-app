@@ -59,3 +59,27 @@ pip-log.txt
 
 # Claude
 .claude/
+
+# Temporary files
+nul
+*.tmp
+
+# Backend temporary files
+backend/*.py
+backend/*.db
+backend/test_*.js
+backend/check_*.js
+backend/setup_*.js
+backend/sync_*.js
+backend/add_*.js
+backend/database_*.js
+backend/simple_*.js
+backend/postgres_*.js
+
+# Keep only essential backend files
+!backend/server.js
+!backend/server-production.js
+!backend/package.json
+!backend/package-lock.json
+!backend/Dockerfile
+!backend/.env.example
