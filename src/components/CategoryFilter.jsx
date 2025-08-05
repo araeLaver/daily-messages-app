@@ -4,10 +4,10 @@ import { Filter, ChevronDown, Tag } from 'lucide-react';
 const CategoryFilter = ({ categories, selectedCategory, onCategoryChange }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // 상위 카테고리들만 표시 (메시지 수가 많은 순)
+  // 모든 카테고리 표시 (메시지 수 1개 이상 또는 '전체')
   const topCategories = categories
-    .filter(cat => cat.message_count > 5 || cat.name === 'all')
-    .slice(0, 10);
+    .filter(cat => cat.message_count >= 1 || cat.name === 'all')
+    .slice(0, 15);
 
   const selectedCategoryInfo = categories.find(cat => cat.name === selectedCategory) || categories[0];
 
