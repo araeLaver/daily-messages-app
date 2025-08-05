@@ -3,7 +3,7 @@ const cors = require('cors');
 const { Client } = require('pg');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // 미들웨어
 app.use(cors());
