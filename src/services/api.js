@@ -3,10 +3,36 @@ import { mockMessages, mockCategories } from '../data/mockMessages';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3002';
 
+console.log('API Base URL:', API_BASE_URL);
+
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 5000, // 빠른 타임아웃으로 폴백 활성화
+  timeout: 10000, // 타임아웃을 10초로 증가
 });
+
+// 요청 인터셉터 추가
+api.interceptors.request.use(
+  (config) => {
+    console.log('API 요청:', config.method?.toUpperCase(), config.url);
+    return config;
+  },
+  (error) => {
+    console.error('API 요청 에러:', error);
+    return Promise.reject(error);
+  }
+);
+
+// 응답 인터셉터 추가
+api.interceptors.response.use(
+  (response) => {
+    console.log('API 응답 성공:', response.config.url, response.status);
+    return response;
+  },
+  (error) => {
+    console.error('API 응답 에러:', error.config?.url, error.response?.status, error.message);
+    return Promise.reject(error);
+  }
+);
 
 // API configuration
 
@@ -69,20 +95,33 @@ export const messageService = {
       const response = await api.get(`/api/messages/random?${params}`);
       return response.data;
     } catch (error) {
-      console.log('API 서버 연결 실패, 로컬 데이터 사용:', error.message);
+      console.error('API 서버 연결 실패:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       
-      // 로컬 랜덤 메시지 반환
-      return getRandomMockMessage(filters);
+      // Mock 데이터 사용 금지 - 에러를 던져서 문제 파악
+      throw new Error(`API 연결 실패: ${error.message}. Mock 데이터 사용 금지`);
     }
   },
 
-  // 오늘의 메시지 가져오기
+  // 오늘의 메시지 가져오기 (랜덤 메시지로 대체)
   async getTodayMessage() {
     try {
-      const response = await api.get('/api/messages/today');
-      return response.data;
+      const response = await api.get('/api/messages/random');
+      const data = response.data;
+      // 오늘의 메시지 형식으로 변환
+      return {
+        ...data,
+        isToday: true,
+        date: new Date().toISOString().split('T')[0]
+      };
     } catch (error) {
-      console.log('API 서버 연결 실패, 로컬 오늘의 메시지 사용:', error.message);
+      console.error('오늘의 메시지 API 연결 실패:', error);
+      console.log('로컬 오늘의 메시지로 폴백 중...');
       return getTodayMockMessage();
     }
   },
@@ -93,13 +132,9 @@ export const messageService = {
       const response = await api.get('/api/stats');
       return response.data;
     } catch (error) {
-      console.log('API 서버 연결 실패, 로컬 통계 사용:', error.message);
-      return { 
-        totalMessages: mockMessages.length, 
-        categoriesCount: mockCategories.length - 1, // '전체' 제외
-        recentMessages: mockMessages.length,
-        schema: 'mock_data'
-      };
+      console.error('통계 API 연결 실패:', error);
+      // Mock 데이터 사용 금지
+      throw new Error(`통계 API 연결 실패: ${error.message}`);
     }
   },
 
@@ -109,8 +144,9 @@ export const messageService = {
       const response = await api.get('/api/categories');
       return response.data;
     } catch (error) {
-      console.log('API 서버 연결 실패, 로컬 카테고리 사용:', error.message);
-      return mockCategories;
+      console.error('카테고리 API 연결 실패:', error);
+      // Mock 데이터 사용 금지
+      throw new Error(`카테고리 API 연결 실패: ${error.message}`);
     }
   },
 
@@ -123,7 +159,7 @@ export const messageService = {
       if (options.category && options.category !== 'all') params.append('category', options.category);
       if (options.search) params.append('search', options.search);
 
-      const response = await api.get(`/api/messages?${params}`);
+      const response = await api.get(`/messages?${params}`);
       return response.data;
     } catch (error) {
       console.error('메시지 목록 조회 실패:', error);
@@ -134,7 +170,7 @@ export const messageService = {
   // 즐겨찾기 추가
   async addFavorite(userId, messageId) {
     try {
-      const response = await api.post('/api/favorites', { userId, messageId });
+      const response = await api.post('/favorites', { userId, messageId });
       return response.data;
     } catch (error) {
       console.error('즐겨찾기 추가 실패:', error);
@@ -145,7 +181,7 @@ export const messageService = {
   // 즐겨찾기 목록 조회
   async getFavorites(userId) {
     try {
-      const response = await api.get(`/api/favorites/${userId}`);
+      const response = await api.get(`/favorites/${userId}`);
       return response.data;
     } catch (error) {
       console.error('즐겨찾기 조회 실패:', error);

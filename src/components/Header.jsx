@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sun, Calendar, Heart, Star, TrendingUp, Coffee } from 'lucide-react';
+import WeatherWidget from './WeatherWidget';
 
 const Header = ({ messageCount, stats, todayMode, onShowFavorites, onTodayMessage }) => {
   const getCurrentDate = () => {
@@ -17,12 +18,12 @@ const Header = ({ messageCount, stats, todayMode, onShowFavorites, onTodayMessag
     <header className="text-center mb-12 animate-fade-in">
       {/* 타이틀 */}
       <div className="flex items-center justify-center gap-3 mb-4">
-        <div className="relative">
+        {/* <div className="relative">
           <Sun className="w-8 h-8 text-yellow-300 animate-bounce-soft" />
           {todayMode && (
             <Star className="w-4 h-4 text-yellow-200 absolute -top-1 -right-1 animate-pulse" />
           )}
-        </div>
+        </div> */}
         <h1 className="text-white text-3xl md:text-4xl font-bold text-shadow">
           Daily Messages
         </h1>
@@ -41,19 +42,22 @@ const Header = ({ messageCount, stats, todayMode, onShowFavorites, onTodayMessag
         )}
       </div>
 
-      {/* 통계 정보 */}
-      {stats && (
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full backdrop-blur-sm">
-            <TrendingUp className="w-4 h-4 text-blue-300" />
-            <span className="text-white/80 text-sm">총 {stats.totalMessages}개</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full backdrop-blur-sm">
-            <Coffee className="w-4 h-4 text-amber-300" />
-            <span className="text-white/80 text-sm">{stats.categoriesCount}개 카테고리</span>
-          </div>
-        </div>
-      )}
+      {/* 통계 정보 및 날씨 */}
+      {/* <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
+        <WeatherWidget />
+        {stats && (
+          <>
+            <div className="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full backdrop-blur-sm">
+              <TrendingUp className="w-4 h-4 text-blue-300" />
+              <span className="text-white/80 text-sm">총 {stats.total_messages}개</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full backdrop-blur-sm">
+              <Coffee className="w-4 h-4 text-amber-300" />
+              <span className="text-white/80 text-sm">{Object.keys(stats.by_category || {}).length}개 카테고리</span>
+            </div>
+          </>
+        )}
+      </div> */}
 
       {/* 메시지 카운터 & 버튼들 */}
       <div className="flex items-center justify-center gap-4 flex-wrap">

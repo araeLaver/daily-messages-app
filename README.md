@@ -23,14 +23,16 @@ React Bits 스타일의 아름다운 매일 명언 웹 애플리케이션
 - **Axios** - HTTP 클라이언트
 
 ### Backend
-- **Node.js + Express** - 웹 서버
-- **PostgreSQL** - 관계형 데이터베이스
+- **FastAPI + Python** - 고성능 웹 API 서버  
+- **PostgreSQL** - 관계형 데이터베이스 (Koyeb 호스팅)
+- **psycopg2** - PostgreSQL 어댑터
 - **CORS** - 크로스 오리진 리소스 공유
 
 ### Database
 - **Koyeb PostgreSQL** - 클라우드 데이터베이스
-- **190개 명언** - 다양한 카테고리별 분류
-- **사용자 즐겨찾기** - 개인화 기능
+- **1505개 명언** - 다양한 카테고리별 분류 (대폭 확장)
+- **15개 카테고리** - 더욱 다양한 주제별 분류
+- **환경별 스키마**: `morning_dev` (개발) / `morning_prod` (운영)
 
 ## 🚀 실행 방법
 
@@ -51,32 +53,34 @@ start_app.bat
 ##### 백엔드 서버 (개발 모드)
 ```bash
 cd backend
-npm install
-npm run dev
-# 개발 서버: http://localhost:3001 (morning_dev 스키마 사용)
+pip install -r requirements.txt
+set DB_SCHEMA=morning_dev
+python postgres_api.py
+# 개발 서버: http://localhost:3002 (morning_dev 스키마 사용)
 ```
 
 ##### 백엔드 서버 (운영 모드)
 ```bash
 cd backend
-npm install
-npm start
-# 운영 서버: http://localhost:3001 (morning_prod 스키마 사용)
+pip install -r requirements.txt
+set DB_SCHEMA=morning_prod
+python postgres_api.py
+# 운영 서버: http://localhost:3002 (morning_prod 스키마 사용)
 ```
 
 ##### 프론트엔드 서버
 ```bash
 npm install
 npm start
-# 개발 서버: http://localhost:3000
+# 개발 서버: http://localhost:3005
 ```
 
 ### 🌍 배포 환경
-- **Frontend**: Netlify (자동 배포)
-- **Backend**: Koyeb (Docker 기반)
+- **Frontend**: Netlify (자동 배포) 
+- **Backend**: FastAPI + Python (클라우드 호스팅)
 - **Database**: Koyeb PostgreSQL
-  - 개발: `morning_dev` 스키마
-  - 운영: `morning_prod` 스키마 (190개 명언)
+  - 개발: `morning_dev` 스키마 (1505개 명언)
+  - 운영: `morning_prod` 스키마 (추후 확장 예정)
 
 ## 📱 주요 화면
 

@@ -32,7 +32,16 @@ function App() {
         ]);
 
         setCurrentMessage(message);
-        setCategories(categoryList);
+        
+        // API에서 받은 카테고리 문자열 배열을 CategoryFilter가 기대하는 형태로 변환
+        const categoryArray = categoryList.categories || categoryList || [];
+        const formattedCategories = categoryArray.map(cat => ({
+          name: cat === '전체' ? 'all' : cat,
+          name_ko: cat,
+          message_count: statsData?.by_category?.[cat] || 0
+        }));
+        setCategories(formattedCategories);
+        
         setStats(statsData);
         setTodayMode(true);
         incrementCounter();
