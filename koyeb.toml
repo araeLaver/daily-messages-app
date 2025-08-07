@@ -1,7 +1,7 @@
-# Koyeb 배포 설정
+# Koyeb FastAPI 배포 설정
 [build]
   context = "backend"
-  dockerfile = "Dockerfile"
+  dockerfile = "Dockerfile.python"
 
 [deploy]
   # 애플리케이션 이름
@@ -15,18 +15,19 @@
   
   # 포트 설정
   ports = [
-    { port = 3001, protocol = "http" }
+    { port = 3002, protocol = "http" }
   ]
   
   # 환경 변수
   env = [
-    "NODE_ENV=production",
-    "DATABASE_SCHEMA=morning_prod",
-    "PORT=3001"
+    "DB_SCHEMA=morning_prod",
+    "PYTHONPATH=/app",
+    "PYTHONUNBUFFERED=1",
+    "PORT=3002"
   ]
   
   # 헬스체크 설정
-  health_check = { path = "/health", port = 3001 }
+  health_check = { path = "/health", port = 3002 }
   
   # 도메인 설정
   routes = [

@@ -1,22 +1,16 @@
 services:
   - type: web
     name: daily-messages-api
-    env: node
+    env: python
     plan: free
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && node server-production.js
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python postgres_api.py
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_HOST
-        value: ep-blue-unit-a2ev3s9x.eu-central-1.pg.koyeb.app
-      - key: DATABASE_USER
-        value: untab
-      - key: DATABASE_PASSWORD
-        value: 0AbVNOIsl2dn
-      - key: DATABASE_NAME
-        value: untab
-      - key: DATABASE_SCHEMA
+      - key: DB_SCHEMA
         value: morning_prod
+      - key: PYTHONPATH
+        value: /opt/render/project/src/backend
+      - key: PYTHONUNBUFFERED
+        value: "1"
       - key: PORT
         value: 10000

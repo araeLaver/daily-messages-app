@@ -2,11 +2,20 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "cd backend && npm install"
+    "buildCommand": "cd backend && pip install -r requirements.txt"
   },
   "deploy": {
-    "startCommand": "cd backend && node server-production.js",
+    "startCommand": "cd backend && python postgres_api.py",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "DB_SCHEMA": "morning_prod",
+        "PYTHONPATH": "/app/backend",
+        "PORT": "3002"
+      }
+    }
   }
 }
