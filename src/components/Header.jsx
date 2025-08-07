@@ -1,6 +1,5 @@
 import React from 'react';
-import { Sun, Calendar, Heart, Star, TrendingUp, Coffee } from 'lucide-react';
-import WeatherWidget from './WeatherWidget';
+import { Calendar, Heart, Star } from 'lucide-react';
 
 const Header = ({ messageCount, stats, todayMode, onShowFavorites, onTodayMessage }) => {
   const getCurrentDate = () => {
