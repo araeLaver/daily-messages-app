@@ -71,7 +71,7 @@ const MessageCard = ({
       {message.author && message.author.trim() && message.author !== '익명' && (
         <div className="text-center mb-6">
           <cite className="text-white/80 text-lg font-medium not-italic">
-            — {message.author}
+            {message.author}
           </cite>
         </div>
       )}

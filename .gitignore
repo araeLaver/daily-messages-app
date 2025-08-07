@@ -64,9 +64,7 @@ pip-log.txt
 nul
 *.tmp
 
-# Backend temporary files
-backend/*.py
-backend/*.db
+# Backend temporary and development files
 backend/test_*.js
 backend/check_*.js
 backend/setup_*.js
@@ -74,12 +72,56 @@ backend/sync_*.js
 backend/add_*.js
 backend/database_*.js
 backend/simple_*.js
-backend/postgres_*.js
+backend/analyze_*.js
+backend/complete_*.js
+backend/expand_*.js
+backend/remove_*.js
+backend/replace_*.js
+backend/migrate_*.js
+backend/sqlite_*.js
+backend/stable_*.js
+backend/node_modules/
+backend/*.log
+backend/*_test*.py
+backend/*_api*.py
+backend/test_*.py
+backend/quick_*.py
+backend/fix_*.py
+backend/bulk_*.py
+backend/check_*.py
+backend/create_*.py
+backend/copy_*.py
+backend/daily_*.py
+backend/direct_*.py
+backend/fast_*.py
+backend/function_*.py
+backend/init_*.py
+backend/insert_*.py
+backend/move_*.py
+backend/populate_*.py
+backend/simple_*.py
+backend/postgres_api_*.py
+backend/postgres_test*.py
+backend/postgres_final.js
+backend/postgres_simple.js
+backend/postgres_server.js
 
-# Keep only essential backend files
+# Development and testing files in root
+*.bat
+test*.html
+test*.py
+debug*.html
+deployment*.js
+final*.js
+check*.py
+*_test.html
+
+# Keep essential backend files
 !backend/server.js
 !backend/server-production.js
+!backend/postgres_api.py
+!backend/requirements.txt
 !backend/package.json
 !backend/package-lock.json
-!backend/Dockerfile
+!backend/Dockerfile*
 !backend/.env.example
