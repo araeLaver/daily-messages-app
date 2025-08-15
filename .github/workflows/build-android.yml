@@ -64,7 +64,7 @@ jobs:
           -keypass "${{ secrets.KEY_PASSWORD }}" \
           app-release.aab \
           "${{ secrets.KEY_ALIAS }}"
-      if: ${{ false }}  # 서명은 나중에 활성화
+      if: ${{ true }}  # 서명 활성화
     
     - name: Upload AAB
       uses: actions/upload-artifact@v4
