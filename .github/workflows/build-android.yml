@@ -1,0 +1,52 @@
+name: Build Android AAB
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: 'Version Code'
+        required: true
+        default: '2'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Build React app
+      run: npm run build
+    
+    - name: Sync Capacitor
+      run: npx cap sync android
+    
+    - name: Update version code
+      run: |
+        sed -i 's/versionCode [0-9]*/versionCode ${{ github.event.inputs.version_code }}/' android/app/build.gradle
+    
+    - name: Build AAB
+      run: |
+        cd android
+        ./gradlew bundleRelease
+    
+    - name: Upload AAB
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-release
+        path: android/app/build/outputs/bundle/release/app-release.aab
