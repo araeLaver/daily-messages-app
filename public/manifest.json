@@ -1,15 +1,29 @@
 {
   "short_name": "모닝",
   "name": "모닝 - 새로운 하루",
+  "description": "매일 아침 당신의 하루를 응원하는 따뜻한 메시지",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "theme_color": "#3B82F6",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "categories": ["lifestyle", "productivity"]
 }

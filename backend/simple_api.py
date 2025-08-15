@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 """
-SQLite 기반 간단한 API (메시지 포함)
+PostgreSQL 기반 간단한 API (메시지 포함)
 """
 
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import hashlib
 import json
 from typing import Optional, List
 import uuid
 from datetime import datetime
 import random
+import os
+from dotenv import load_dotenv
+
+# 환경변수 로드
+load_dotenv()
 
 app = FastAPI(title="모닝 앱 API", version="1.0.0")
 
@@ -40,12 +46,23 @@ class FavoriteCreate(BaseModel):
     message_text: str
     message_author: str
 
-# SQLite 데이터베이스 연결 함수
+# PostgreSQL 데이터베이스 연결 함수
 def get_db_connection():
-    """SQLite 데이터베이스 연결"""
-    conn = sqlite3.connect('messages.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+    """PostgreSQL 데이터베이스 연결"""
+    try:
+        conn = psycopg2.connect(
+            host=os.getenv('DATABASE_HOST'),
+            port=int(os.getenv('DATABASE_PORT', 5432)),
+            database=os.getenv('DATABASE_NAME'),
+            user=os.getenv('DATABASE_USER'),
+            password=os.getenv('DATABASE_PASSWORD'),
+            sslmode='require',
+            options=f'-c search_path={os.getenv("DATABASE_SCHEMA", "morning_dev")}'
+        )
+        return conn
+    except Exception as e:
+        print(f"DB 연결 오류: {e}")
+        raise
 
 # 비밀번호 해시 함수
 def hash_password(password: str) -> str:
@@ -62,15 +79,15 @@ async def health_check():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) as count FROM messages")
+        cursor.execute("SELECT COUNT(*) FROM daily_messages WHERE is_active = true")
         result = cursor.fetchone()
         conn.close()
         
         return {
             "status": "healthy",
             "database": "connected", 
-            "schema": "sqlite",
-            "message_count": result['count'],
+            "schema": "postgresql",
+            "message_count": result[0],
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
@@ -85,13 +102,13 @@ async def register(user_data: UserCreate):
         cur = conn.cursor()
         
         # 중복 확인
-        cur.execute("SELECT user_id FROM users WHERE name = %s;", (user_data.name,))
-        if cur.fetchone():
+        cur.execute("SELECT COUNT(*) FROM users WHERE name = %s;", (user_data.name,))
+        if cur.fetchone()[0] > 0:
             raise HTTPException(status_code=400, detail="이미 존재하는 사용자명입니다.")
         
         if user_data.email:
-            cur.execute("SELECT user_id FROM users WHERE email = %s;", (user_data.email,))
-            if cur.fetchone():
+            cur.execute("SELECT COUNT(*) FROM users WHERE email = %s;", (user_data.email,))
+            if cur.fetchone()[0] > 0:
                 raise HTTPException(status_code=400, detail="이미 존재하는 이메일입니다.")
         
         # 새 사용자 생성
@@ -100,11 +117,9 @@ async def register(user_data: UserCreate):
         
         cur.execute("""
             INSERT INTO users (user_id, name, email, password_hash, active, created_at) 
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING user_id, name, email, active, created_at;
+            VALUES (%s, %s, %s, %s, %s, %s);
         """, (user_id, user_data.name, user_data.email, password_hash, True, datetime.now()))
         
-        user = cur.fetchone()
         conn.commit()
         cur.close()
         conn.close()
@@ -112,11 +127,11 @@ async def register(user_data: UserCreate):
         return {
             "message": "회원가입이 완료되었습니다!",
             "user": {
-                "user_id": str(user[0]),
-                "name": user[1],
-                "email": user[2],
-                "active": user[3],
-                "created_at": user[4].isoformat() if user[4] else None
+                "user_id": user_id,
+                "name": user_data.name,
+                "email": user_data.email,
+                "active": True,
+                "created_at": datetime.now().isoformat()
             }
         }
         
@@ -137,7 +152,8 @@ async def login(user_data: UserLogin):
         cur.execute("""
             SELECT user_id, name, email, active, created_at 
             FROM users 
-            WHERE name = %s AND password_hash = %s AND active = true;
+            WHERE name = %s AND password_hash = %s AND active = true
+            LIMIT 1;
         """, (user_data.name, password_hash))
         
         user = cur.fetchone()
@@ -234,9 +250,9 @@ async def get_tables():
         cur.execute("""
             SELECT table_name 
             FROM information_schema.tables 
-            WHERE table_schema = 'public'
+            WHERE table_schema = %s
             ORDER BY table_name;
-        """)
+        """, (os.getenv('DATABASE_SCHEMA', 'morning_dev'),))
         
         tables = [table[0] for table in cur.fetchall()]
         
@@ -254,7 +270,8 @@ async def get_tables():
 async def get_random_message(
     category: Optional[str] = None,
     time_of_day: Optional[str] = None,
-    season: Optional[str] = None
+    season: Optional[str] = None,
+    exclude_ids: Optional[str] = None
 ):
     """랜덤 메시지 가져오기"""
     try:
@@ -262,21 +279,29 @@ async def get_random_message(
         cursor = conn.cursor()
         
         # 기본 쿼리
-        query = "SELECT * FROM messages WHERE is_active = 1"
+        query = "SELECT * FROM daily_messages WHERE is_active = true"
         params = []
         
         # 필터링 추가
         if category and category != "all":
-            query += " AND category = ?"
+            query += " AND category = %s"
             params.append(category)
         
         if time_of_day:
-            query += " AND (time_of_day = ? OR time_of_day IS NULL)"
+            query += " AND (time_of_day = %s OR time_of_day IS NULL)"
             params.append(time_of_day)
         
         if season and season != "all":
-            query += " AND (season = ? OR season = 'all')"
+            query += " AND (season = %s OR season = 'all')"
             params.append(season)
+        
+        # 최근 본 메시지 제외
+        if exclude_ids:
+            ids_list = [int(id_str) for id_str in exclude_ids.split(',') if id_str.isdigit()]
+            if ids_list:
+                placeholders = ','.join(['%s'] * len(ids_list))
+                query += f" AND id NOT IN ({placeholders})"
+                params.extend(ids_list)
         
         # 랜덤 정렬
         query += " ORDER BY RANDOM() LIMIT 1"
@@ -296,19 +321,19 @@ async def get_random_message(
             }
         
         # 조회수 증가
-        cursor.execute("UPDATE messages SET view_count = view_count + 1 WHERE id = ?", (message['id'],))
+        cursor.execute("UPDATE daily_messages SET view_count = COALESCE(view_count, 0) + 1 WHERE id = %s", (message[0],))
         conn.commit()
         conn.close()
         
         return {
-            "id": message['id'],
-            "text": message['text'],
-            "author": message['author'],
-            "category": message['category'],
-            "time_of_day": message['time_of_day'],
-            "season": message['season'],
-            "source": message['source'],
-            "view_count": message['view_count'] + 1
+            "id": message[0],
+            "text": message[1],
+            "author": message[2],
+            "category": message[3],
+            "time_of_day": message[4] if len(message) > 4 else None,
+            "season": message[5] if len(message) > 5 else None,
+            "source": "postgresql",
+            "view_count": (message[6] if len(message) > 6 else 0) + 1
         }
         
     except Exception as e:
@@ -322,26 +347,20 @@ async def get_message_stats():
         cursor = conn.cursor()
         
         # 전체 메시지 수
-        cursor.execute("SELECT COUNT(*) as count FROM messages WHERE is_active = 1")
-        total = cursor.fetchone()['count']
+        cursor.execute("SELECT COUNT(*) FROM daily_messages WHERE is_active = true")
+        total = cursor.fetchone()[0]
         
         # 카테고리별 통계
         cursor.execute("""
-            SELECT category, COUNT(*) as count 
-            FROM messages 
-            WHERE is_active = 1 
+            SELECT category, COUNT(*) 
+            FROM daily_messages 
+            WHERE is_active = true 
             GROUP BY category
         """)
-        categories = {row['category']: row['count'] for row in cursor.fetchall()}
+        categories = {row[0]: row[1] for row in cursor.fetchall()}
         
-        # 소스별 통계
-        cursor.execute("""
-            SELECT source, COUNT(*) as count 
-            FROM messages 
-            WHERE is_active = 1 
-            GROUP BY source
-        """)
-        sources = {row['source']: row['count'] for row in cursor.fetchall()}
+        # 소스별 통계 (단순히 'postgresql'로 표시)
+        sources = {"postgresql": total}
         
         conn.close()
         
@@ -361,8 +380,8 @@ async def get_categories():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT DISTINCT category FROM messages WHERE is_active = 1")
-        categories = [row['category'] for row in cursor.fetchall()]
+        cursor.execute("SELECT DISTINCT category FROM daily_messages WHERE is_active = true")
+        categories = [row[0] for row in cursor.fetchall()]
         
         conn.close()
         
@@ -373,6 +392,6 @@ async def get_categories():
 
 if __name__ == "__main__":
     import uvicorn
-    print("모닝 앱 API 서버 시작...")
-    print("API 문서: http://localhost:8005/docs")
-    uvicorn.run(app, host="0.0.0.0", port=8005)
+    print("모닝 앱 API 서버 시작 (PostgreSQL)...")
+    print("API 문서: http://localhost:8000/docs")
+    uvicorn.run(app, host="0.0.0.0", port=8000)

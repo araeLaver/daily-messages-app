@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">모닝</string>
+    <string name="title_activity_main">모닝 - 새로운 하루</string>
+    <string name="package_name">com.unble.morning</string>
+    <string name="custom_url_scheme">com.unble.morning</string>
+</resources>
