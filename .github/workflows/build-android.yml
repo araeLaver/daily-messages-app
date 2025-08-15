@@ -64,7 +64,7 @@ jobs:
           -keypass "${{ secrets.KEY_PASSWORD }}" \
           app-release.aab \
           "${{ secrets.KEY_ALIAS }}"
-      if: ${{ true }}  # 서명 활성화
+      if: ${{ false }}  # 서명 비활성화 - Play Console에서 처리
     
     - name: Upload AAB
       uses: actions/upload-artifact@v4
