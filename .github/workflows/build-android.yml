@@ -30,6 +30,10 @@ jobs:
     - name: Install dependencies
       run: npm install
     
+    - name: Install Capacitor
+      run: |
+        npm install @capacitor/core @capacitor/cli @capacitor/android
+    
     - name: Build React app
       run: npm run build
     
@@ -38,12 +42,29 @@ jobs:
     
     - name: Update version code
       run: |
-        sed -i 's/versionCode [0-9]*/versionCode ${{ github.event.inputs.version_code }}/' android/app/build.gradle
+        sed -i "s/versionCode [0-9]*/versionCode ${{ github.event.inputs.version_code }}/" android/app/build.gradle
+    
+    - name: Make gradlew executable
+      run: |
+        cd android
+        chmod +x gradlew
     
     - name: Build AAB
       run: |
         cd android
-        ./gradlew bundleRelease
+        ./gradlew bundleRelease --no-daemon
+    
+    - name: Sign AAB
+      run: |
+        cd android/app/build/outputs/bundle/release
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > signing.keystore
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+          -keystore signing.keystore \
+          -storepass "${{ secrets.KEYSTORE_PASSWORD }}" \
+          -keypass "${{ secrets.KEY_PASSWORD }}" \
+          app-release.aab \
+          "${{ secrets.KEY_ALIAS }}"
+      if: ${{ false }}  # 서명은 나중에 활성화
     
     - name: Upload AAB
       uses: actions/upload-artifact@v3
