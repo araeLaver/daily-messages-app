@@ -21,10 +21,23 @@ self.addEventListener('install', event => {
 
 // Fetch event
 self.addEventListener('fetch', event => {
+  // API 요청은 캐시하지 않고 직접 fetch
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // API 실패시 빈 응답 반환
+        return new Response(JSON.stringify({ error: 'Network error' }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      })
+    );
+    return;
+  }
+  
+  // 정적 자원은 캐시 우선
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Cache hit - return response
         if (response) {
           return response;
         }

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모닝 - 스크린샷 데모</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            width: 360px;
+            height: 800px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* 스크린샷 1: 메인 화면 */
+        .screen1 {
+            padding: 20px;
+            text-align: center;
+            color: white;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .screen1 h1 {
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+        .message-box {
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .message-text {
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .message-author {
+            color: #666;
+            font-style: italic;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: 2px solid white;
+            font-size: 16px;
+        }
+        
+        /* 스크린샷 2: 카테고리 */
+        .screen2 {
+            padding: 20px;
+            background: #f5f5f5;
+            height: 100%;
+        }
+        .header {
+            background: #3B82F6;
+            color: white;
+            padding: 20px;
+            margin: -20px -20px 20px -20px;
+            text-align: center;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .category-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .category-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .category-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .category-count {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        /* 스크린샷 3: 즐겨찾기 */
+        .screen3 {
+            padding: 20px;
+            background: white;
+            height: 100%;
+        }
+        .fav-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3B82F6;
+        }
+        .fav-icon {
+            font-size: 30px;
+            margin-right: 10px;
+        }
+        .fav-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .fav-item {
+            background: #f8f8f8;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #3B82F6;
+        }
+        .fav-text {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+        }
+        .fav-date {
+            color: #999;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        /* 스크린샷 4: 통계 */
+        .screen4 {
+            padding: 20px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            height: 100%;
+            color: white;
+        }
+        .stats-title {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        .chart-box {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .chart-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .bar-label {
+            width: 80px;
+            font-size: 14px;
+        }
+        .bar-fill {
+            height: 25px;
+            background: #3B82F6;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 4가지 스크린샷을 선택하여 표시 -->
+    <!-- 개발자 도구로 각각 캡처하세요 -->
+    
+    <!-- 스크린샷 1: 메인 화면 -->
+    <div class="screen1" id="screen1">
+        <h1>🌅 모닝</h1>
+        <div class="message-box">
+            <div class="message-text">
+                "매일 조금씩 나아지는 것이<br>
+                위대한 성공의 비결입니다.<br>
+                오늘도 한 걸음 더 성장하세요."
+            </div>
+            <div class="message-author">- 오늘의 메시지 -</div>
+        </div>
+        <div class="btn-row">
+            <button class="btn">❤️ 저장</button>
+            <button class="btn">🔄 다음</button>
+            <button class="btn">📊 통계</button>
+        </div>
+    </div>
+    
+    <!-- 스크린샷 2: 카테고리 선택 -->
+    <div class="screen2" id="screen2" style="display:none;">
+        <div class="header">
+            <h2>카테고리별 메시지</h2>
+        </div>
+        <div class="category-grid">
+            <div class="category-card">
+                <div class="category-icon">💪</div>
+                <div class="category-name">동기부여</div>
+                <div class="category-count">150개 메시지</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">🙏</div>
+                <div class="category-name">감사</div>
+                <div class="category-count">120개 메시지</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">🌱</div>
+                <div class="category-name">성장</div>
+                <div class="category-count">130개 메시지</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">❤️</div>
+                <div class="category-name">관계</div>
+                <div class="category-count">110개 메시지</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">🧘</div>
+                <div class="category-name">건강</div>
+                <div class="category-count">100개 메시지</div>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">✨</div>
+                <div class="category-name">전체</div>
+                <div class="category-count">610개 메시지</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 스크린샷 3: 즐겨찾기 -->
+    <div class="screen3" id="screen3" style="display:none;">
+        <div class="fav-header">
+            <span class="fav-icon">⭐</span>
+            <span class="fav-title">내 즐겨찾기</span>
+        </div>
+        <div class="fav-item">
+            <div class="fav-text">작은 발걸음이 모여 큰 여정이 됩니다.</div>
+            <div class="fav-date">2024.12.15 저장</div>
+        </div>
+        <div class="fav-item">
+            <div class="fav-text">오늘의 최선이 내일의 기적을 만듭니다.</div>
+            <div class="fav-date">2024.12.14 저장</div>
+        </div>
+        <div class="fav-item">
+            <div class="fav-text">감사하는 마음이 행복의 시작입니다.</div>
+            <div class="fav-date">2024.12.13 저장</div>
+        </div>
+        <div class="fav-item">
+            <div class="fav-text">당신은 생각보다 더 강한 사람입니다.</div>
+            <div class="fav-date">2024.12.12 저장</div>
+        </div>
+    </div>
+    
+    <!-- 스크린샷 4: 통계 -->
+    <div class="screen4" id="screen4" style="display:none;">
+        <h2 class="stats-title">📊 나의 모닝 기록</h2>
+        <div class="stat-box">
+            <div class="stat-number">45</div>
+            <div class="stat-label">총 읽은 메시지</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">12</div>
+            <div class="stat-label">저장한 즐겨찾기</div>
+        </div>
+        <div class="chart-box">
+            <div class="chart-title">카테고리별 조회</div>
+            <div class="bar">
+                <span class="bar-label">동기부여</span>
+                <div class="bar-fill" style="width: 150px;"></div>
+            </div>
+            <div class="bar">
+                <span class="bar-label">감사</span>
+                <div class="bar-fill" style="width: 120px;"></div>
+            </div>
+            <div class="bar">
+                <span class="bar-label">성장</span>
+                <div class="bar-fill" style="width: 100px;"></div>
+            </div>
+            <div class="bar">
+                <span class="bar-label">관계</span>
+                <div class="bar-fill" style="width: 80px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // URL 파라미터로 스크린 전환 가능
+        // ?screen=1, ?screen=2, ?screen=3, ?screen=4
+        window.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const screen = params.get('screen') || '1';
+            
+            // 모든 스크린 숨기기
+            document.getElementById('screen1').style.display = 'none';
+            document.getElementById('screen2').style.display = 'none';
+            document.getElementById('screen3').style.display = 'none';
+            document.getElementById('screen4').style.display = 'none';
+            
+            // 선택된 스크린만 표시
+            const targetScreen = document.getElementById('screen' + screen);
+            if (targetScreen) {
+                if (targetScreen.id === 'screen1') {
+                    targetScreen.style.display = 'flex';
+                } else {
+                    targetScreen.style.display = 'block';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
