@@ -1,5 +1,6 @@
 import React from 'react';
-import { Calendar, Heart, Star } from 'lucide-react';
+import { Calendar, Heart, Star, TrendingUp, Coffee } from 'lucide-react';
+import WeatherWidget from './WeatherWidget';
 
 const Header = ({ messageCount, stats, todayMode, onShowFavorites, onTodayMessage }) => {
   const getCurrentDate = () => {
@@ -42,7 +43,7 @@ const Header = ({ messageCount, stats, todayMode, onShowFavorites, onTodayMessag
       </div>
 
       {/* 통계 정보 및 날씨 */}
-      {/* <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
+      <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
         <WeatherWidget />
         {stats && (
           <>
@@ -56,7 +57,7 @@ const Header = ({ messageCount, stats, todayMode, onShowFavorites, onTodayMessag
             </div>
           </>
         )}
-      </div> */}
+      </div>
 
       {/* 메시지 카운터 & 버튼들 */}
       <div className="flex items-center justify-center gap-4 flex-wrap">

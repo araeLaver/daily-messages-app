@@ -35,11 +35,9 @@ const WeatherWidget = () => {
       humidity: Math.floor(Math.random() * 40) + 30, // 30-70%
     };
 
-    // API 호출 시뮬레이션
-    setTimeout(() => {
-      setWeather(mockWeather);
-      setLoading(false);
-    }, 1000);
+    // 즉시 날씨 데이터 설정
+    setWeather(mockWeather);
+    setLoading(false);
   }, []);
 
   if (loading) {
