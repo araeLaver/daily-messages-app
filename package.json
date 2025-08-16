@@ -1,6 +1,7 @@
 {
   "name": "morning-app-react",
   "version": "1.0.0",
+  "homepage": "https://daily-messages-app.netlify.app",
   "private": true,
   "dependencies": {
     "@capacitor/android": "^7.4.2",
