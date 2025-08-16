@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { mockMessages, mockCategories } from '../data/mockMessages';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3002';
+// 백엔드 서버가 준비될 때까지 임시로 비활성화
+const API_BASE_URL = null; // process.env.REACT_APP_API_BASE_URL || 'http://localhost:3002';
 
 console.log('API Base URL:', API_BASE_URL);
 
@@ -81,6 +82,12 @@ const getTodayMockMessage = () => {
 export const messageService = {
   // 랜덤 메시지 가져오기
   async getRandomMessage(filters = {}) {
+    // 백엔드 서버가 준비될 때까지 Mock 데이터만 사용
+    if (!API_BASE_URL) {
+      console.log('백엔드 서버 미설정, Mock 데이터 사용');
+      return getRandomMockMessage(filters);
+    }
+    
     try {
       const params = new URLSearchParams();
       if (filters.category && filters.category !== 'all') {
@@ -110,6 +117,12 @@ export const messageService = {
 
   // 오늘의 메시지 가져오기 (랜덤 메시지로 대체)
   async getTodayMessage() {
+    // 백엔드 서버가 준비될 때까지 Mock 데이터만 사용
+    if (!API_BASE_URL) {
+      console.log('백엔드 서버 미설정, Mock 오늘의 메시지 사용');
+      return getTodayMockMessage();
+    }
+    
     try {
       const response = await api.get('/api/messages/random');
       const data = response.data;
@@ -128,6 +141,19 @@ export const messageService = {
 
   // 메시지 통계
   async getStats() {
+    // 백엔드 서버가 준비될 때까지 Mock 데이터만 사용
+    if (!API_BASE_URL) {
+      console.log('백엔드 서버 미설정, Mock 통계 사용');
+      return {
+        total_messages: mockMessages.length,
+        total_categories: mockCategories.length,
+        by_category: mockCategories.reduce((acc, cat) => {
+          acc[cat.name_ko] = mockMessages.filter(msg => msg.category === cat.name).length;
+          return acc;
+        }, {})
+      };
+    }
+    
     try {
       const response = await api.get('/api/stats');
       return response.data;
@@ -147,6 +173,12 @@ export const messageService = {
 
   // 카테고리 목록
   async getCategories() {
+    // 백엔드 서버가 준비될 때까지 Mock 데이터만 사용
+    if (!API_BASE_URL) {
+      console.log('백엔드 서버 미설정, Mock 카테고리 사용');
+      return { categories: mockCategories.map(cat => cat.name_ko) };
+    }
+    
     try {
       const response = await api.get('/api/categories');
       return response.data;
