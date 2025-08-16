@@ -2,9 +2,10 @@ import axios from 'axios';
 import { mockMessages, mockCategories } from '../data/mockMessages';
 
 // 백엔드 서버가 준비될 때까지 임시로 비활성화
-const API_BASE_URL = null; // process.env.REACT_APP_API_BASE_URL || 'http://localhost:3002';
+// Netlify 환경변수도 무시하고 강제로 null 설정
+const API_BASE_URL = null; // 백엔드 서버 없이 Mock 데이터만 사용
 
-console.log('API Base URL:', API_BASE_URL);
+console.log('Mock 데이터 모드 활성화');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
