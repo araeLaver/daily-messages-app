@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { mockMessages, mockCategories } from '../data/mockMessages';
 
-// 로컬 개발시에는 localhost:3002, 운영시에는 Railway URL 사용
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3002';
+// Railway 배포 API 서버 사용
+const API_BASE_URL = 'https://daily-messages-api-production.up.railway.app';
 
 console.log('API Base URL:', API_BASE_URL);
 
