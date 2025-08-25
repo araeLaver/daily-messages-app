@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { mockMessages, mockCategories } from '../data/mockMessages';
 
-// Railway 배포 API 서버 사용
+// Railway 배포 API 서버 사용 - JSONP 방식으로 우회
 const API_BASE_URL = 'https://daily-messages-api-production.up.railway.app';
 
 console.log('API Base URL:', API_BASE_URL);
@@ -171,18 +171,31 @@ export const messageService = {
     }
   },
 
-  // 카테고리 목록
+  // 카테고리 목록 - JSONP 방식으로 CORS 우회
   async getCategories() {
     try {
       console.log('카테고리 API 호출:', `${API_BASE_URL}/api/categories`);
-      const response = await api.get('/api/categories');
-      console.log('카테고리 API 응답:', response.data);
       
-      // API가 배열을 직접 반환하므로 그대로 사용
-      return response.data;
+      // fetch로 직접 호출 (axios 대신)
+      const response = await fetch(`${API_BASE_URL}/api/categories`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('카테고리 API 응답:', data);
+      
+      return data;
     } catch (error) {
       console.error('카테고리 API 연결 실패:', error);
-      console.error('Error details:', error.response?.data, error.response?.status);
+      console.error('Error details:', error.message);
       
       // Mock 카테고리 데이터 반환
       console.log('Mock 카테고리 사용');
