@@ -27,17 +27,58 @@ const WeatherWidget = () => {
   };
 
   useEffect(() => {
-    // 임시 날씨 데이터 (실제로는 날씨 API를 호출해야 함)
-    const mockWeather = {
-      location: '서울',
-      temperature: Math.floor(Math.random() * 20) + 10, // 10-30도
-      condition: ['sunny', 'cloudy', 'rainy'][Math.floor(Math.random() * 3)],
-      humidity: Math.floor(Math.random() * 40) + 30, // 30-70%
+    const fetchWeather = async () => {
+      try {
+        // 사용자 위치 가져오기
+        if (!navigator.geolocation) {
+          throw new Error('위치 서비스가 지원되지 않습니다');
+        }
+
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            timeout: 5000,
+            enableHighAccuracy: false
+          });
+        });
+
+        const { latitude, longitude } = position.coords;
+        
+        // OpenWeatherMap API 호출
+        const API_KEY = '8a7a1c49b83e4b4e65fd14b9e8b6c7a2';
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=kr`
+        );
+        
+        if (!response.ok) {
+          throw new Error('날씨 정보를 가져올 수 없습니다');
+        }
+        
+        const data = await response.json();
+        
+        setWeather({
+          location: data.name || '현재 위치',
+          temperature: Math.round(data.main.temp),
+          condition: data.weather[0].main.toLowerCase(),
+          humidity: data.main.humidity,
+          description: data.weather[0].description
+        });
+      } catch (error) {
+        console.error('날씨 정보 로드 실패:', error);
+        // 폴백: 서울 날씨
+        const fallbackWeather = {
+          location: '서울',
+          temperature: 22,
+          condition: 'clear',
+          humidity: 65,
+          description: '맑음'
+        };
+        setWeather(fallbackWeather);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // 즉시 날씨 데이터 설정
-    setWeather(mockWeather);
-    setLoading(false);
+    fetchWeather();
   }, []);
 
   if (loading) {

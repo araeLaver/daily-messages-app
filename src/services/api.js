@@ -173,19 +173,20 @@ export const messageService = {
 
   // 카테고리 목록
   async getCategories() {
-    // 백엔드 서버가 준비될 때까지 Mock 데이터만 사용
-    if (!API_BASE_URL) {
-      console.log('백엔드 서버 미설정, Mock 카테고리 사용');
-      return { categories: mockCategories.map(cat => cat.name_ko) };
-    }
-    
     try {
+      console.log('카테고리 API 호출:', `${API_BASE_URL}/api/categories`);
       const response = await api.get('/api/categories');
+      console.log('카테고리 API 응답:', response.data);
+      
+      // API가 배열을 직접 반환하므로 그대로 사용
       return response.data;
     } catch (error) {
-      console.error('카테고리 API 연결 실패, Mock 데이터 사용:', error);
+      console.error('카테고리 API 연결 실패:', error);
+      console.error('Error details:', error.response?.data, error.response?.status);
+      
       // Mock 카테고리 데이터 반환
-      return { categories: mockCategories.map(cat => cat.name_ko) };
+      console.log('Mock 카테고리 사용');
+      return mockCategories;
     }
   },
 
